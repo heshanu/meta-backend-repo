@@ -1,0 +1,17 @@
+import pytest
+from restaurant.tests.factories import MenuFactory
+from rest_framework.test import APIClient
+from rest_framework.response import Response
+from django.urls import reverse
+from restaurant.serializers import MenuSerializer
+
+pytestmark = pytest.mark.django_db
+
+
+def test__get_all_menu_items__success(authorized_client: APIClient):
+    items = MenuFactory.create_batch(size=10)
+    url = reverse("menu_list")
+    response: Response = authorized_client.get(url)
+    assert len(response.data) == 10
+    for index, item in enumerate(items):
+        assert MenuSerializer(item).data == response.data[index]
